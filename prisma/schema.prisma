@@ -22,23 +22,23 @@ model Student {
 }
 
 model Attendance {
-  id        String      @id @default(cuid())
+  id        String           @id @default(cuid())
   studentId String
   date      DateTime
   status    AttendanceStatus
   note      String?
-  createdAt DateTime    @default(now())
-  updatedAt DateTime    @updatedAt
+  createdAt DateTime         @default(now())
+  updatedAt DateTime         @updatedAt
   
-  student   Student     @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  student   Student @relation(fields: [studentId], references: [id], onDelete: Cascade)
   
   @@unique([studentId, date])
   @@map("attendances")
 }
 
 enum AttendanceStatus {
-  PRESENT  // มา
-  ABSENT   // ไม่มา
-  LATE     // สาย
-  EXCUSED  // ลา
+  PRESENT
+  ABSENT
+  LATE
+  EXCUSED
 }

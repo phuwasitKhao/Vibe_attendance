@@ -16,13 +16,13 @@ export default function RootLayout({
   children: React.ReactNode
 }) {
   return (
-    <html lang="th">
+    <html lang="en">
       <body className={inter.className}>
         <div className="min-h-screen bg-gray-50">
           <Navbar />
-          <main className="pb-20 md:pb-8">
+          <div className="pb-20 md:pb-8">
             {children}
-          </main>
+          </div>
           <MobileBottomNav />
         </div>
       </body>

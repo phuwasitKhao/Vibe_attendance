@@ -1,3 +1,4 @@
+// src/hooks/useStudents.ts
 import { useState, useEffect } from 'react';
 import { Student } from '@/types';
 
@@ -14,19 +15,25 @@ export function useStudents() {
       const response = await fetch('/api/students');
 
       if (!response.ok) {
-        throw new Error('Failed to fetch students');
+        throw new Error(`HTTP error! status: ${response.status}`);
       }
 
       const data = await response.json();
-      setStudents(data);
+      console.log('Fetched students:', data); // Debug
+      setStudents(Array.isArray(data) ? data : []);
     } catch (err) {
+      console.error('Error fetching students:', err);
       setError(err instanceof Error ? err.message : 'Unknown error');
+      setStudents([]); // Reset to empty array on error
     } finally {
       setLoading(false);
     }
   };
 
   const addStudents = async (studentNames: string[], replaceAll: boolean = true) => {
+    setError(null);
+    console.log('Adding students:', studentNames); // Debug
+
     try {
       const response = await fetch('/api/students', {
         method: 'POST',
@@ -39,16 +46,24 @@ export function useStudents() {
         }),
       });
 
+      const responseText = await response.text();
+      console.log('API Response:', responseText); // Debug
+
       if (!response.ok) {
-        throw new Error('Failed to add students');
+        throw new Error(`Server error: ${response.status} - ${responseText}`);
       }
 
-      const result = await response.json();
-      await fetchStudents(); // รีเฟรชข้อมูล
+      const result = JSON.parse(responseText);
+      console.log('Add students result:', result); // Debug
+
+      // รีเฟรชข้อมูลหลังจากเพิ่มเสร็จ
+      await fetchStudents();
 
       return result;
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Unknown error');
+      console.error('Error adding students:', err);
+      const errorMessage = err instanceof Error ? err.message : 'Unknown error';
+      setError(errorMessage);
       throw err;
     }
   };
