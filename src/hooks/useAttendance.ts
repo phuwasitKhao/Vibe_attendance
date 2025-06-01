@@ -28,11 +28,6 @@ export function useAttendance(date: Date) {
     }
   }, [date]);
 
-  useEffect(() => {
-    fetchAttendance();
-  }, [fetchAttendance]);
-
-
   const saveAttendance = async (studentId: string, status: AttendanceStatus, note?: string) => {
     try {
       const response = await fetch('/api/attendance', {
@@ -96,7 +91,7 @@ export function useAttendance(date: Date) {
 
   useEffect(() => {
     fetchAttendance();
-  }, [date]);
+  }, [fetchAttendance]);
 
   return {
     attendances,

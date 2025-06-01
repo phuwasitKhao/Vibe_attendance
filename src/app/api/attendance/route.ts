@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { PrismaClient } from '@prisma/client';
-
-const prisma = new PrismaClient();
+import { prisma } from '@/lib/prisma';
+import { AttendanceStatus } from '@/types';
 
 // GET - ดึงข้อมูลการเช็คชื่อตามวันที่
 export async function GET(request: NextRequest) {
@@ -11,7 +10,7 @@ export async function GET(request: NextRequest) {
     const month = searchParams.get('month');
     const year = searchParams.get('year');
 
-    let whereClause: any = {};
+    let whereClause: Record<string, unknown> = {};
 
     if (date) {
       // ดึงข้อมูลตามวันที่เฉพาะ
@@ -46,10 +45,11 @@ export async function GET(request: NextRequest) {
     });
 
     return NextResponse.json(attendances);
-  } catch (error) {
+  } catch (error: unknown) {
     console.error('Error fetching attendance:', error);
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error';
     return NextResponse.json(
-      { error: 'Failed to fetch attendance' },
+      { error: 'Failed to fetch attendance', details: errorMessage },
       { status: 500 }
     );
   }
@@ -76,7 +76,7 @@ export async function POST(request: NextRequest) {
       });
 
       // สร้างข้อมูลใหม่
-      const attendanceData = attendances.map((att: any) => ({
+      const attendanceData = attendances.map((att: { studentId: string; status: AttendanceStatus; note?: string }) => ({
         studentId: att.studentId,
         date: new Date(date),
         status: att.status,
@@ -120,10 +120,11 @@ export async function POST(request: NextRequest) {
 
       return NextResponse.json(attendance);
     }
-  } catch (error) {
+  } catch (error: unknown) {
     console.error('Error saving attendance:', error);
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error';
     return NextResponse.json(
-      { error: 'Failed to save attendance' },
+      { error: 'Failed to save attendance', details: errorMessage },
       { status: 500 }
     );
   }

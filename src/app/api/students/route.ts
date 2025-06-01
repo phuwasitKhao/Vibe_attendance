@@ -1,7 +1,28 @@
-// src/app/api/students/route.ts (แก้ไขส่วน POST)
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 
+// GET - ดึงรายชื่อนักเรียนทั้งหมด
+export async function GET() {
+  try {
+    console.log('Fetching students from database...'); // Debug
+
+    const students = await prisma.student.findMany({
+      orderBy: { studentId: 'asc' }
+    });
+
+    console.log('Found students:', students.length); // Debug
+    return NextResponse.json(students);
+  } catch (error: unknown) {
+    console.error('Database error:', error);
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+    return NextResponse.json(
+      { error: 'Failed to fetch students', details: errorMessage },
+      { status: 500 }
+    );
+  }
+}
+
+// POST - เพิ่มนักเรียนใหม่ (หรือหลายคนพร้อมกัน)
 export async function POST(request: NextRequest) {
   try {
     console.log('POST /api/students called'); // Debug
@@ -20,7 +41,6 @@ export async function POST(request: NextRequest) {
         );
       }
 
-      // เตรียมข้อมูลนักเรียน
       const studentsData = body.students.map((name: string, index: number) => {
         if (!name || typeof name !== 'string') {
           throw new Error(`Invalid student name at index ${index}: ${name}`);
@@ -40,14 +60,20 @@ export async function POST(request: NextRequest) {
 
       console.log('Prepared students data:', studentsData); // Debug
 
-      // ลบข้อมูลเก่าถ้าต้องการ
+      // ลบนักเรียนเก่าทั้งหมดก่อน (ถ้าต้องการ)
       if (body.replaceAll) {
-        console.log('Deleting existing data...'); // Debug
+        console.log('Deleting existing students and attendance records...'); // Debug
 
-        // ลบทีละขั้นตอนเพื่อหลีกเลี่ยง foreign key constraint
-        await prisma.attendance.deleteMany({});
-        await prisma.student.deleteMany({});
+        // ลบข้อมูลการเช็คชื่อก่อน (เพราะมี foreign key constraint)
+        const deletedAttendance = await prisma.attendance.deleteMany();
+        console.log('Deleted attendance records:', deletedAttendance.count);
+
+        // จากนั้นลบนักเรียน
+        const deletedStudents = await prisma.student.deleteMany();
+        console.log('Deleted students:', deletedStudents.count);
       }
+
+      console.log('Creating new students...'); // Debug
 
       // สร้างนักเรียนทีละคน (เพื่อหลีกเลี่ยงปัญหา createMany)
       const createdStudents = [];
@@ -58,7 +84,7 @@ export async function POST(request: NextRequest) {
           });
           createdStudents.push(student);
           console.log(`Created student: ${student.name}`); // Debug
-        } catch (createError: any) {
+        } catch (createError: unknown) {
           console.error(`Error creating student ${studentData.name}:`, createError);
           // ข้ามนักเรียนที่สร้างไม่ได้
           continue;
@@ -106,50 +132,73 @@ export async function POST(request: NextRequest) {
       );
     }
 
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Error in POST /api/students:', error);
+
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+    const errorCode = (error as { code?: string }).code;
+
+    // ตรวจสอบ error types ต่างๆ
+    if (errorCode === 'P2002') {
+      return NextResponse.json(
+        {
+          error: 'Duplicate student ID',
+          details: 'A student with this ID already exists'
+        },
+        { status: 409 }
+      );
+    }
+
+    if (errorCode === 'P2003') {
+      return NextResponse.json(
+        {
+          error: 'Foreign key constraint failed',
+          details: errorMessage
+        },
+        { status: 400 }
+      );
+    }
 
     return NextResponse.json(
       {
         error: 'Failed to create students',
-        details: error.message,
-        code: error.code || 'UNKNOWN_ERROR'
+        details: errorMessage,
+        code: errorCode || 'UNKNOWN_ERROR'
       },
       { status: 500 }
     );
   }
 }
 
-// GET และ DELETE functions อื่นๆ ใช้เหมือนเดิม
-export async function GET() {
-  try {
-    const students = await prisma.student.findMany({
-      orderBy: { studentId: 'asc' }
-    });
-
-    return NextResponse.json(students);
-  } catch (error: any) {
-    console.error('Database error:', error);
-    return NextResponse.json(
-      { error: 'Failed to fetch students', details: error.message },
-      { status: 500 }
-    );
-  }
-}
-
+// DELETE - ลบนักเรียนทั้งหมด
 export async function DELETE() {
   try {
-    await prisma.attendance.deleteMany({});
-    await prisma.student.deleteMany({});
+    console.log('DELETE /api/students called - deleting all students'); // Debug
+
+    // ลบข้อมูลการเช็คชื่อก่อน (เพราะมี foreign key constraint)
+    const deletedAttendance = await prisma.attendance.deleteMany();
+    console.log('Deleted attendance records:', deletedAttendance.count);
+
+    // จากนั้นลบนักเรียนทั้งหมด
+    const deletedStudents = await prisma.student.deleteMany();
+    console.log('Deleted students:', deletedStudents.count);
 
     return NextResponse.json({
       success: true,
-      message: 'ลบนักเรียนทั้งหมดเรียบร้อยแล้ว'
+      message: 'ลบนักเรียนทั้งหมดเรียบร้อยแล้ว',
+      deletedStudents: deletedStudents.count,
+      deletedAttendance: deletedAttendance.count
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Error deleting all students:', error);
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+    const errorCode = (error as { code?: string }).code;
     return NextResponse.json(
-      { error: 'Failed to delete students', details: error.message },
+      {
+        error: 'Failed to delete students',
+        details: errorMessage,
+        code: errorCode || 'UNKNOWN_ERROR'
+      },
       { status: 500 }
     );
   }

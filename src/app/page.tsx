@@ -48,7 +48,7 @@ export default function HomePage() {
   }, []);
 
   // ดึงข้อมูลสถิติวันนี้
-  const fetchTodayStats = async () => {
+  const fetchTodayStats = useCallback(async () => {
     try {
       setLoading(true);
 
@@ -62,10 +62,10 @@ export default function HomePage() {
         // นับจำนวนแต่ละสถานะ
         const stats = {
           totalStudents: students.length,
-          presentToday: attendanceData.filter((a: any) => a.status === 'PRESENT').length,
-          absentToday: attendanceData.filter((a: any) => a.status === 'ABSENT').length,
-          lateToday: attendanceData.filter((a: any) => a.status === 'LATE').length,
-          excusedToday: attendanceData.filter((a: any) => a.status === 'EXCUSED').length,
+          presentToday: attendanceData.filter((a: { status: string }) => a.status === 'PRESENT').length,
+          absentToday: attendanceData.filter((a: { status: string }) => a.status === 'ABSENT').length,
+          lateToday: attendanceData.filter((a: { status: string }) => a.status === 'LATE').length,
+          excusedToday: attendanceData.filter((a: { status: string }) => a.status === 'EXCUSED').length,
         };
 
         setTodayStats(stats);
@@ -91,10 +91,10 @@ export default function HomePage() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [students.length]);
 
   // ดึงกิจกรรมล่าสุด
-  const fetchRecentActivities = async () => {
+  const fetchRecentActivities = useCallback(async () => {
     try {
       const activities: RecentActivity[] = [];
 
@@ -140,7 +140,7 @@ export default function HomePage() {
       console.error('Error fetching recent activities:', error);
       setRecentActivities([]);
     }
-  };
+  }, [students.length]);
 
   // ดึงข้อมูลเมื่อมีนักเรียนในระบบ
   useEffect(() => {
@@ -148,7 +148,7 @@ export default function HomePage() {
       fetchTodayStats();
       fetchRecentActivities();
     }
-  }, [students]);
+  }, [students.length, fetchTodayStats, fetchRecentActivities]);
 
   const attendanceRate = todayStats.totalStudents > 0
     ? Math.round((todayStats.presentToday / todayStats.totalStudents) * 100)
