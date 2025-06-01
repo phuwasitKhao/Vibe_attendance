@@ -9,7 +9,7 @@ import ExcelUploader from '@/components/students/ExcelUploader';
 import { useStudents } from '@/hooks/useStudents';
 
 export default function StudentsPage() {
-  const { students, loading, error, addStudents, updateStudent, deleteStudent } = useStudents();
+  const { students, loading, addStudents, updateStudent, deleteStudent } = useStudents();
   const [isUploading, setIsUploading] = useState(false);
   const [uploadStatus, setUploadStatus] = useState<'idle' | 'success' | 'error'>('idle');
 
@@ -18,14 +18,11 @@ export default function StudentsPage() {
     setUploadStatus('idle');
 
     try {
-      await addStudents(studentNames, true); // replaceAll = true
+      await addStudents(studentNames, true);
       setUploadStatus('success');
-
-      // ซ่อนข้อความสำเร็จหลัง 3 วินาที
       setTimeout(() => setUploadStatus('idle'), 3000);
-
-    } catch (error) {
-      console.error('Error uploading students:', error);
+    } catch (err) {
+      console.error('Error uploading students:', err);
       setUploadStatus('error');
     } finally {
       setIsUploading(false);
@@ -36,7 +33,8 @@ export default function StudentsPage() {
     if (confirm('คุณต้องการลบนักเรียนคนนี้ใช่หรือไม่?')) {
       try {
         await deleteStudent(id);
-      } catch (error) {
+      } catch (err) {
+        console.error('Error deleting student:', err);
         alert('เกิดข้อผิดพลาดในการลบนักเรียน');
       }
     }
@@ -47,9 +45,10 @@ export default function StudentsPage() {
       try {
         const response = await fetch('/api/students', { method: 'DELETE' });
         if (response.ok) {
-          window.location.reload(); // รีเฟรชหน้า
+          window.location.reload();
         }
-      } catch (error) {
+      } catch (err) {
+        console.error('Error clearing all students:', err);
         alert('เกิดข้อผิดพลาดในการลบข้อมูล');
       }
     }
@@ -58,7 +57,8 @@ export default function StudentsPage() {
   const handleEditStudentName = async (id: string, newName: string) => {
     try {
       await updateStudent(id, newName);
-    } catch (error) {
+    } catch (err) {
+      console.error('Error updating student:', err);
       alert('เกิดข้อผิดพลาดในการแก้ไขชื่อ');
     }
   };

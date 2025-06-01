@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { format } from 'date-fns';
 import { th } from 'date-fns/locale';
 import { Card } from '@/components/ui/card';
@@ -51,7 +51,7 @@ export default function ReportsPage() {
   const [loading, setLoading] = useState(false);
   const [isExporting, setIsExporting] = useState(false);
 
-  const fetchReport = async () => {
+  const fetchReport = useCallback(async () => {
     setLoading(true);
     try {
       const response = await fetch(`/api/reports?month=${selectedMonth}&year=${selectedYear}`);
@@ -64,20 +64,18 @@ export default function ReportsPage() {
         setReportData([]);
         setSummary(null);
       }
-    } catch (error) {
-      console.error('Error fetching report:', error);
+    } catch (err) {
+      console.error('Error fetching report:', err);
       setReportData([]);
       setSummary(null);
     } finally {
       setLoading(false);
     }
-  };
+  }, [selectedMonth, selectedYear]);
 
   useEffect(() => {
     fetchReport();
-  }, [selectedMonth, selectedYear]);
-
-  const exportToExcel = async () => {
+  }, [fetchReport]); const exportToExcel = async () => {
     setIsExporting(true);
 
     try {

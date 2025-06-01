@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { Attendance, AttendanceStatus } from '@/types';
 
 export function useAttendance(date: Date) {
@@ -6,7 +6,7 @@ export function useAttendance(date: Date) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const fetchAttendance = async () => {
+  const fetchAttendance = useCallback(async () => {
     setLoading(true);
     setError(null);
 
@@ -26,7 +26,12 @@ export function useAttendance(date: Date) {
     } finally {
       setLoading(false);
     }
-  };
+  }, [date]);
+
+  useEffect(() => {
+    fetchAttendance();
+  }, [fetchAttendance]);
+
 
   const saveAttendance = async (studentId: string, status: AttendanceStatus, note?: string) => {
     try {

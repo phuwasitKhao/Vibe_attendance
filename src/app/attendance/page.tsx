@@ -90,8 +90,9 @@ export default function AttendancePage() {
       await saveBulkAttendance(attendanceData);
 
       alert(`บันทึกการเช็คชื่อวันที่ ${format(selectedDate, 'dd MMMM yyyy', { locale: th })} เรียบร้อยแล้ว!`);
-    } catch (error) {
-      alert(error + 'เกิดข้อผิดพลาดในการบันทึกข้อมูล');
+    } catch (err) {
+      console.error('Error saving attendance:', err);
+      alert('เกิดข้อผิดพลาดในการบันทึกข้อมูล');
     } finally {
       setIsSaving(false);
     }
