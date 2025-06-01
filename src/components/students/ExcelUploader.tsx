@@ -78,14 +78,12 @@ export default function ExcelUploader({ onUpload, isUploading }: ExcelUploaderPr
       size: file.size
     });
 
-    // ตรวจสอบนามสกุลไฟล์แทน MIME type
     const fileName = file.name.toLowerCase();
     if (!fileName.endsWith('.xlsx') && !fileName.endsWith('.xls')) {
       setError('กรุณาเลือกไฟล์ Excel (.xlsx หรือ .xls) เท่านั้น');
       return;
     }
 
-    // ตรวจสอบขนาดไฟล์ (10MB)
     if (file.size > 10 * 1024 * 1024) {
       setError('ไฟล์มีขนาดใหญ่เกินไป กรุณาเลือกไฟล์ที่มีขนาดไม่เกิน 10MB');
       return;
@@ -267,7 +265,7 @@ export default function ExcelUploader({ onUpload, isUploading }: ExcelUploaderPr
         <h4 className="font-medium text-blue-900 mb-2">รูปแบบไฟล์ Excel ที่รองรับ:</h4>
         <ul className="text-sm text-blue-700 space-y-1">
           <li>• ใส่รายชื่อในคอลัมน์ A (คอลัมน์แรก)</li>
-          <li>• ชื่อนักเรียนควรมีคำนำหน้า เช่น "ด.ช.สมชาย ใจดี" หรือ "ด.ญ.สมหญิง สวยงาม"</li>
+          <li>• ชื่อนักเรียนควรมีคำนำหน้า เช่น ด.ช.สมชาย ใจดี หรือ ด.ญ.สมหญิง สวยงาม</li>
           <li>• ระบบจะลบคำนำหน้า (ด.ช., ด.ญ.) อัตโนมัติ</li>
           <li>• สามารถมีหัวข้อแถวแรกได้ (จะข้ามไป)</li>
           <li>• รองรับไฟล์ .xlsx และ .xls</li>

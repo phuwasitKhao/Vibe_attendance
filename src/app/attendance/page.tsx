@@ -91,7 +91,7 @@ export default function AttendancePage() {
 
       alert(`บันทึกการเช็คชื่อวันที่ ${format(selectedDate, 'dd MMMM yyyy', { locale: th })} เรียบร้อยแล้ว!`);
     } catch (error) {
-      alert('เกิดข้อผิดพลาดในการบันทึกข้อมูล');
+      alert(error + 'เกิดข้อผิดพลาดในการบันทึกข้อมูล');
     } finally {
       setIsSaving(false);
     }

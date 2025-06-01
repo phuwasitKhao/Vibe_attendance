@@ -19,7 +19,7 @@ export async function GET(request: NextRequest) {
       const startOfDay = new Date(targetDate.setHours(0, 0, 0, 0));
       const endOfDay = new Date(targetDate.setHours(23, 59, 59, 999));
 
-      whereClause.date = {
+      const whereClause.date = {
         gte: startOfDay,
         lte: endOfDay
       };
