@@ -10,7 +10,7 @@ export async function GET(request: NextRequest) {
     const month = searchParams.get('month');
     const year = searchParams.get('year');
 
-    let whereClause: Record<string, unknown> = {};
+    const whereClause: Record<string, unknown> = {};
 
     if (date) {
       // ดึงข้อมูลตามวันที่เฉพาะ
