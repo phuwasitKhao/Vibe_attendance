@@ -1,15 +1,17 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { PrismaClient } from '@prisma/client';
+import { prisma } from '@/lib/prisma';
 
-const prisma = new PrismaClient();
+interface RouteParams {
+  params: Promise<{ id: string }>;
+}
 
 // PUT - แก้ไขข้อมูลนักเรียน
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  context: RouteParams
 ) {
   try {
-    const { id } = params;
+    const { id } = await context.params;
     const { name, studentId, className } = await request.json();
 
     const student = await prisma.student.update({
@@ -22,10 +24,11 @@ export async function PUT(
     });
 
     return NextResponse.json(student);
-  } catch (error) {
+  } catch (error: unknown) {
     console.error('Error updating student:', error);
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error';
     return NextResponse.json(
-      { error: 'Failed to update student' },
+      { error: 'Failed to update student', details: errorMessage },
       { status: 500 }
     );
   }
@@ -34,20 +37,57 @@ export async function PUT(
 // DELETE - ลบนักเรียน
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  context: RouteParams
 ) {
   try {
-    const { id } = params;
+    const { id } = await context.params;
 
     await prisma.student.delete({
       where: { id }
     });
 
     return NextResponse.json({ message: 'ลบนักเรียนเรียบร้อยแล้ว' });
-  } catch (error) {
+  } catch (error: unknown) {
     console.error('Error deleting student:', error);
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error';
     return NextResponse.json(
-      { error: 'Failed to delete student' },
+      { error: 'Failed to delete student', details: errorMessage },
+      { status: 500 }
+    );
+  }
+}
+
+// GET - ดึงข้อมูลนักเรียนคนเดียว (เพิ่มเติม)
+export async function GET(
+  request: NextRequest,
+  context: RouteParams
+) {
+  try {
+    const { id } = await context.params;
+
+    const student = await prisma.student.findUnique({
+      where: { id },
+      include: {
+        attendances: {
+          orderBy: { date: 'desc' },
+          take: 10 // แสดง 10 รายการล่าสุด
+        }
+      }
+    });
+
+    if (!student) {
+      return NextResponse.json(
+        { error: 'Student not found' },
+        { status: 404 }
+      );
+    }
+
+    return NextResponse.json(student);
+  } catch (error: unknown) {
+    console.error('Error fetching student:', error);
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+    return NextResponse.json(
+      { error: 'Failed to fetch student', details: errorMessage },
       { status: 500 }
     );
   }
