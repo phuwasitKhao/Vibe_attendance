@@ -78,6 +78,21 @@ export default function AttendancePage() {
     }
   };
 
+  // const getStatusIcon = (status: AttendanceStatus): string => {
+  //   switch (status) {
+  //     case AttendanceStatus.PRESENT:
+  //       return '✓';
+  //     case AttendanceStatus.ABSENT:
+  //       return '✗';
+  //     case AttendanceStatus.LATE:
+  //       return '⏰';
+  //     case AttendanceStatus.EXCUSED:
+  //       return '📝';
+  //     default:
+  //       return '✓';
+  //   }
+  // };
+
   const saveAttendance = async () => {
     setIsSaving(true);
 
@@ -134,7 +149,7 @@ export default function AttendancePage() {
         <Card>
           <div className="p-8 text-center">
             <svg className="w-16 h-16 text-gray-300 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z" />
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 715 0z" />
             </svg>
             <h3 className="text-lg font-medium text-gray-900 mb-2">ยังไม่มีข้อมูลนักเรียน</h3>
             <p className="text-gray-500 mb-4">กรุณาเพิ่มรายชื่อนักเรียนก่อนเริ่มเช็คชื่อ</p>
@@ -230,25 +245,26 @@ export default function AttendancePage() {
 
         <div className="divide-y divide-gray-200">
           {students.map((student, index) => (
-            <div key={student.id} className="p-6 hover:bg-gray-50 transition-colors">
+            <div key={student.id} className="p-4 md:p-6 hover:bg-gray-50 transition-colors">
               <div className="flex items-center justify-between">
-                <div className="flex items-center space-x-4">
-                  <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
-                    <span className="text-blue-600 font-semibold">
+                <div className="flex items-center space-x-3 md:space-x-4 flex-1">
+                  <div className="w-8 h-8 md:w-10 md:h-10 bg-blue-100 rounded-full flex items-center justify-center flex-shrink-0">
+                    <span className="text-blue-600 font-semibold text-sm md:text-base">
                       {index + 1}
                     </span>
                   </div>
-                  <div>
-                    <h3 className="text-lg font-medium text-gray-900">
+                  <div className="flex-1 min-w-0">
+                    <h3 className="text-base md:text-lg font-medium text-gray-900 truncate">
                       {student.name}
                     </h3>
-                    <p className="text-sm text-gray-500">
+                    <p className="text-xs md:text-sm text-gray-500">
                       รหัส: {student.studentId}
                     </p>
                   </div>
                 </div>
 
-                <div className="flex space-x-2">
+                {/* Desktop: Buttons */}
+                <div className="hidden md:flex space-x-2">
                   {Object.values(AttendanceStatus).map((status) => (
                     <button
                       key={status}
@@ -264,6 +280,29 @@ export default function AttendancePage() {
                       {getStatusText(status)}
                     </button>
                   ))}
+                </div>
+
+                <div className="md:hidden flex items-center space-x-3">
+                  {/* <div className={`
+                    px-3 py-1 rounded-full text-xs font-medium min-w-[60px] text-center
+                    ${getStatusColor(getAttendanceStatus(student.id))}
+                  `}>
+                    <span className="mr-1">{getStatusIcon(getAttendanceStatus(student.id))}</span>
+                    {getStatusText(getAttendanceStatus(student.id))}
+                  </div> */}
+
+                  <select
+                    value={getAttendanceStatus(student.id)}
+                    onChange={(e) => handleAttendanceChange(student.id, e.target.value as AttendanceStatus)}
+                    className="text-sm border border-gray-300 rounded-lg px-3 py-2 bg-white focus:ring-2 focus:ring-blue-500 focus:border-transparent min-w-[100px]"
+                  >
+                    {Object.values(AttendanceStatus).map((status) => (
+                      <option key={status} value={status}>
+                        {/* {getStatusIcon(status)} {getStatusText(status)} */}
+                        {getStatusText(status)}
+                      </option>
+                    ))}
+                  </select>
                 </div>
               </div>
             </div>
@@ -328,7 +367,7 @@ export default function AttendancePage() {
           onClick={saveAttendance}
           disabled={isSaving || Object.keys(attendanceRecords).length === 0}
           size="lg"
-          className="px-8 py-3"
+          className="px-8 py-3 w-full md:w-auto"
         >
           {isSaving ? (
             <>
@@ -356,24 +395,24 @@ export default function AttendancePage() {
       {Object.keys(attendanceRecords).length > 0 && (
         <Card className="mt-6">
           <div className="p-4 bg-blue-50">
-            <div className="flex items-center justify-center space-x-6 text-sm">
+            <div className="flex items-center justify-center space-x-4 md:space-x-6 text-sm">
               <div className="text-center">
                 <div className="font-semibold text-blue-900">
                   {Math.round((getStatusCount(AttendanceStatus.PRESENT) / Object.keys(attendanceRecords).length) * 100)}%
                 </div>
-                <div className="text-blue-600">อัตราการมาเรียน</div>
+                <div className="text-blue-600 text-xs md:text-sm">อัตราการมาเรียน</div>
               </div>
               <div className="text-center">
                 <div className="font-semibold text-blue-900">
                   {Object.keys(attendanceRecords).length}
                 </div>
-                <div className="text-blue-600">เช็คชื่อแล้ว</div>
+                <div className="text-blue-600 text-xs md:text-sm">เช็คชื่อแล้ว</div>
               </div>
               <div className="text-center">
                 <div className="font-semibold text-blue-900">
                   {students.length - Object.keys(attendanceRecords).length}
                 </div>
-                <div className="text-blue-600">ยังไม่เช็ค</div>
+                <div className="text-blue-600 text-xs md:text-sm">ยังไม่เช็ค</div>
               </div>
             </div>
           </div>
