@@ -12,7 +12,7 @@ export default function StudentsPage() {
   const { students, loading, addStudents, updateStudent, deleteStudent } = useStudents();
   const [isUploading, setIsUploading] = useState(false);
   const [uploadStatus, setUploadStatus] = useState<'idle' | 'success' | 'error'>('idle');
-
+  const [error, setError] = useState<string | null>(null);
   const handleExcelUpload = async (studentNames: string[]) => {
     setIsUploading(true);
     setUploadStatus('idle');
@@ -73,6 +73,13 @@ export default function StudentsPage() {
       </div>
     );
   }
+  const handleSomeAction = async () => {
+    try {
+      // Your code here
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'An error occurred');
+    }
+  };
 
   return (
     <div className="container mx-auto px-4 py-8">
@@ -137,7 +144,6 @@ export default function StudentsPage() {
             <div className="mt-6 flex gap-2">
               <Button
                 onClick={handleClearAll}
-                variant="danger"
                 size="sm"
                 className="flex items-center space-x-2"
               >

@@ -74,7 +74,6 @@ export default function StudentList({ students, onEdit, onDelete }: StudentListP
                 />
                 <Button
                   onClick={saveEdit}
-                  variant="success"
                   size="sm"
                   disabled={!editValue.trim()}
                 >
@@ -115,7 +114,6 @@ export default function StudentList({ students, onEdit, onDelete }: StudentListP
               </Button>
               <Button
                 onClick={() => onDelete(student.id)}
-                variant="danger"
                 size="sm"
                 className="flex items-center space-x-1"
               >

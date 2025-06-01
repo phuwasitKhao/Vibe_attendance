@@ -12,7 +12,6 @@ export default function DateNavigator({ selectedDate, onDateChange }: DateNaviga
     <div className="flex items-center justify-center space-x-4 mb-4">
       <Button
         onClick={() => onDateChange(subDays(selectedDate, 1))}
-        variant="primary"
       >
         ← วันก่อน
       </Button>
@@ -28,7 +27,6 @@ export default function DateNavigator({ selectedDate, onDateChange }: DateNaviga
 
       <Button
         onClick={() => onDateChange(addDays(selectedDate, 1))}
-        variant="primary"
       >
         วันถัดไป →
       </Button>

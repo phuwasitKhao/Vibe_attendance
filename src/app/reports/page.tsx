@@ -6,6 +6,7 @@ import { th } from 'date-fns/locale';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import * as XLSX from 'xlsx';
+import Link from 'next/link';
 
 interface ReportData {
   student: {
@@ -216,7 +217,6 @@ export default function ReportsPage() {
                 <Button
                   onClick={fetchReport}
                   disabled={loading}
-                  variant="primary"
                 >
                   {loading ? 'กำลังโหลด...' : 'ดูรายงาน'}
                 </Button>
@@ -227,7 +227,6 @@ export default function ReportsPage() {
               onClick={exportToExcel}
               disabled={isExporting || reportData.length === 0}
               className="flex items-center space-x-2"
-              variant="success"
             >
               {isExporting ? (
                 <>
@@ -309,8 +308,10 @@ export default function ReportsPage() {
             <p className="text-gray-500 mb-4">
               ยังไม่มีการเช็คชื่อในเดือน{months.find(m => m.value === selectedMonth)?.name} {selectedYear}
             </p>
-            <Button as="a" href="/attendance" variant="primary">
-              ไปหน้าเช็คชื่อ
+            <Button >
+              <Link href="attendance">
+                ไปหน้าเช็คชื่อ
+              </Link>
             </Button>
           </div>
         </Card>

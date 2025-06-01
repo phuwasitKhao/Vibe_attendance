@@ -140,7 +140,6 @@ export default function AttendancePage() {
             <p className="text-gray-500 mb-4">กรุณาเพิ่มรายชื่อนักเรียนก่อนเริ่มเช็คชื่อ</p>
             <Button
               onClick={() => window.location.href = '/students'}
-              variant="primary"
             >
               ไปหน้าจัดการนักเรียน
             </Button>
@@ -196,7 +195,6 @@ export default function AttendancePage() {
 
             <Button
               onClick={markAllPresent}
-              variant="success"
               size="sm"
             >
               เช็คมาทั้งหมด
@@ -204,7 +202,6 @@ export default function AttendancePage() {
 
             <Button
               onClick={clearAll}
-              variant="danger"
               size="sm"
             >
               ล้างทั้งหมด
@@ -330,7 +327,6 @@ export default function AttendancePage() {
         <Button
           onClick={saveAttendance}
           disabled={isSaving || Object.keys(attendanceRecords).length === 0}
-          variant="success"
           size="lg"
           className="px-8 py-3"
         >

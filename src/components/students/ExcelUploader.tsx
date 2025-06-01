@@ -153,7 +153,6 @@ export default function ExcelUploader({ onUpload, isUploading }: ExcelUploaderPr
 
       } catch (error) {
         console.error('Error reading Excel file:', error);
-        setError(`เกิดข้อผิดพลาดในการอ่านไฟล์: ${error.message}\n\nกรุณาลอง:\n• ปิดไฟล์ Excel ก่อนอัพโหลด\n• บันทึกไฟล์ใหม่\n• ตรวจสอบว่าไฟล์ไม่เสียหาย`);
       }
     };
 
@@ -246,7 +245,6 @@ export default function ExcelUploader({ onUpload, isUploading }: ExcelUploaderPr
 
               <Button
                 type="button"
-                variant="primary"
                 className="mx-auto"
               >
                 เลือกไฟล์ Excel
